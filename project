@@ -1,0 +1,73 @@
+import math
+import scipy
+from scipy.integrate import quad
+#visualization:
+import matplotlib.pyplot as plt # run: pip install matplotlib
+import numpy as np
+
+
+def simpson(f, a, b, n): #function: that will be evaluated, a=interval value a, b=interval value b, n=# intervals
+    sum = float()
+    sum += f(a) #evaluating first point
+    sum += f(b) #evaluating last point
+    h=(b-a)/n 
+    oddSum = float()
+    evenSum = float()
+    x=[]
+    y=[]
+    y.append(f(a))
+       
+    for j in range(0, n):# build array of x values(nodes)
+        x.append(a+j*h)
+    x.append(a+n*h)
+           
+    for j in range(1,int(n/2)): #evaluating all even values of n, including last value
+        evenX=2*j
+        evenSum += f(x[evenX])
+        y.append(f(x[evenX])*2* h/3)
+    sum += evenSum * 2
+
+    for j in range(1,int(n/2)+1): #evaluating all odd values of n, including last value
+        oddX=2*j-1
+        oddSum += f(x[oddX])
+        y.append(f(x[oddX])*4* h/3)
+    sum += oddSum * 4
+    y.append(f(b))
+    return sum * h/3, x, y
+
+def function(x): 
+    return 2*(math.exp(-x**2))/math.sqrt(math.pi)
+def init():
+    cases=[2,4,8,16]
+    yActualValues=[]
+    yReturned=[]
+    xReturned=[]
+    actualValueIntegral = scipy.integrate.quad(function, 0, 1)[0] #build function for integral
+    print("actualValueIntegral: ---------------->",actualValueIntegral)
+    for i in range(0,16):
+        yActualValues.append(function(i))
+    xActualValues = np.linspace(0, 1, 16)  # giving 16 x values to visualice original function.
+     
+    for n in cases: # Report approximations and actual error for each case
+        integralA, x, y=simpson(function, 0, 1, n) 
+        print ("Simpsons approximation for n=",n,":",integralA)
+        actualError=abs(actualValueIntegral-integralA)
+        print("actualError for n=",n,":", actualError)
+        
+        yReturned.append(y)
+        xReturned.append(x)
+ #Visualization
+    plt.plot(xActualValues, yActualValues, label='Given function')   
+    plt.plot(xReturned[0], yReturned[0], label='n=2')
+    plt.plot(xReturned[1], yReturned[1], label='n=4')
+    plt.plot(xReturned[2], yReturned[2], label='n=8')
+    plt.plot(xReturned[3], yReturned[3], label='n=16')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title("Functions Plot")
+    plt.legend()  
+    plt.show()
+
+
+init()
+    
